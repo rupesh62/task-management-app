@@ -5,7 +5,6 @@ const TodoList = () => {
   const [todoList, setTodoList] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  // Load the todoList from local storage when the component is mounted
   useEffect(() => {
     const storedTodoList = localStorage.getItem("todoList");
     if (storedTodoList) {
@@ -13,7 +12,6 @@ const TodoList = () => {
     }
   }, []);
 
-  // Save the todoList to local storage whenever it is updated
   useEffect(() => {
     localStorage.setItem("todoList", JSON.stringify(todoList));
   }, [todoList]);
