@@ -1,9 +1,22 @@
-import React, { useState } from "react";
-import ToDoForm from "./TodoForm";
+import React, { useState, useEffect } from "react";
+import TodoForm from "./TodoForm";
 
-const TodoList = (props) => {
-  const { todoList, setTodoList } = props;
+const TodoList = () => {
+  const [todoList, setTodoList] = useState([]);
   const [showForm, setShowForm] = useState(false);
+
+  // Load the todoList from local storage when the component is mounted
+  useEffect(() => {
+    const storedTodoList = localStorage.getItem("todoList");
+    if (storedTodoList) {
+      setTodoList(JSON.parse(storedTodoList));
+    }
+  }, []);
+
+  // Save the todoList to local storage whenever it is updated
+  useEffect(() => {
+    localStorage.setItem("todoList", JSON.stringify(todoList));
+  }, [todoList]);
 
   const handleDeleteToDo = (selectedId) => {
     const newTodoList = todoList.filter((item) => item.id !== selectedId);
@@ -30,7 +43,11 @@ const TodoList = (props) => {
   };
 
   const handleFormSubmit = (newTask) => {
-    const newTodoList = [...todoList, newTask];
+    const updatedTask = {
+      ...newTask,
+      isCompleted: false,
+    };
+    const newTodoList = [...todoList, updatedTask];
     setTodoList(newTodoList);
     setShowForm(false);
   };
@@ -46,39 +63,43 @@ const TodoList = (props) => {
       </div>
       <div>
         {showForm ? (
-          <ToDoForm onSubmit={handleFormSubmit} />
+          <TodoForm onSubmit={handleFormSubmit} />
         ) : (
-          todoList.length > 0 ? (
-            <div>
-              {todoList.map((toDoItem) => (
-                <div
-                  key={toDoItem.id}
-                  className="d-flex align-items-center justify-content-between mb-1"
-                >
-                  <input
-                    defaultChecked={toDoItem.isCompleted}
-                    type="checkbox"
-                    onChange={() => handleComplete(toDoItem.id)}
-                    className="form-check-input"
-                  />
-                  <p className="mb-1 mx-2">{toDoItem.description}</p>
-                  <div className="d-flex">
-                    <button className="btn btn-info btn-sm mx-2">
-                      <i className="fa-solid fa-edit"></i>
-                    </button>
+          <>
+            {todoList.length > 0 ? (
+              <div>
+                {todoList.map((toDoItem) => (
+                  <div
+                    key={toDoItem.id}
+                    className="d-flex align-items-center justify-content-between mb-1"
+                  >
+                    <input
+                      defaultChecked={toDoItem.isCompleted}
+                      type="checkbox"
+                      onChange={() => handleComplete(toDoItem.id)}
+                      className="form-check-input"
+                    />
+                    <div>
+                    <p className="todo-item-description">
+                      <strong>Title:</strong> {toDoItem.title}
+                    </p>
+                    <p className="todo-item-description">
+                      <strong>Description:</strong> {toDoItem.description}
+                    </p>
+                    </div>
                     <button
                       onClick={() => handleDeleteToDo(toDoItem.id)}
                       className="btn btn-danger btn-sm"
                     >
-                      <i className="fa-solid fa-trash"></i>
+                      Delete
                     </button>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>Nothing Added</p>
-          )
+                ))}
+              </div>
+            ) : (
+              <p>Nothing Added</p>
+            )}
+          </>
         )}
       </div>
     </div>
